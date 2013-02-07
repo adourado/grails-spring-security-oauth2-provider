@@ -15,14 +15,19 @@
 import org.apache.log4j.Logger;
 import org.codehaus.groovy.grails.plugins.springsecurity.SpringSecurityUtils
 import org.springframework.security.oauth2.provider.code.InMemoryAuthorizationCodeServices
+import org.springframework.security.oauth2.provider.code.JdbcAuthorizationCodeServices
 import org.springframework.security.oauth2.provider.BaseClientDetails
 import org.springframework.security.oauth2.provider.InMemoryClientDetailsService
 import org.springframework.security.oauth2.provider.token.InMemoryTokenStore
+
 import org.springframework.security.oauth2.provider.token.RandomValueTokenServices
 import org.springframework.security.oauth2.provider.filter.OAuth2ExceptionHandlerFilter
 import org.springframework.security.oauth2.provider.filter.OAuth2ProtectedResourceFilter
 
 import grails.plugins.springsecurity.oauthprovider.SpringSecurityOAuth2ProviderUtility
+
+import grails.plugins.springsecurity.oauthprovider.GormTokenStore
+import grails.plugins.springsecurity.oauthprovider.GormClientDetailsService
 
 class SpringSecurityOauth2ProviderGrailsPlugin {
 	static Logger log = Logger.getLogger('grails.app.bootstrap.BootStrap')
@@ -37,7 +42,7 @@ class SpringSecurityOauth2ProviderGrailsPlugin {
 		'test/**',
 		// Controllers
 		'grails-app/controllers/**',
-		'grails-app/domain/**',
+		'grails-app/domain/test/*',
 		'grails-app/i18n/**',
 		// Views
 		'web-app/**',
@@ -76,10 +81,16 @@ OAuth2 Provider support for the Spring Security plugin.
 		if (!conf.oauthProvider.active)
 			return
 
+		log.debug 'applicationContext.dataSource ' + dataSource
+
 		log.debug 'Configuring Spring Security OAuth2 provider ...'
 		
-		clientDetailsService(InMemoryClientDetailsService)
-		tokenStore(InMemoryTokenStore)
+		clientDetailsService(GormClientDetailsService)//InMemoryClientDetailsService
+		tokenStore(GormTokenStore){//InMemoryTokenStore
+			dataSource = ref("dataSource")
+		}
+
+
 		tokenServices(RandomValueTokenServices) {
 			tokenStore = ref("tokenStore")
 			accessTokenValiditySeconds = conf.oauthProvider.tokenServices.accessTokenValiditySeconds
@@ -87,7 +98,8 @@ OAuth2 Provider support for the Spring Security plugin.
 			reuseRefreshToken = conf.oauthProvider.tokenServices.reuseRefreshToken
 			supportRefreshToken = conf.oauthProvider.tokenServices.supportRefreshToken
 		}
-		authorizationCodeServices(InMemoryAuthorizationCodeServices)
+		authorizationCodeServices(InMemoryAuthorizationCodeServices)//JdbcAuthorizationCodeServices
+//		authorizationCodeServices(JdbcAuthorizationCodeServices)//InMemoryAuthorizationCodeServices
 		
 		// Oauth namespace
 		xmlns oauth:"http://www.springframework.org/schema/security/oauth2"
@@ -136,6 +148,7 @@ OAuth2 Provider support for the Spring Security plugin.
 	}
 
     def doWithApplicationContext = { applicationContext ->
+
 		def conf = SpringSecurityUtils.securityConfig
 		if (!conf || !conf.active) {
 			return
