@@ -48,9 +48,9 @@ import oauth2.*
             if (client.accessTokenValidity){
                 token.setExpiration(new Date(System.currentTimeMillis() + (client.accessTokenValidity * 1000L)));
             }
-        } 
+        }
 
-        def o = new OauthAccessToken(   tokenId:token.getValue(), 
+        def o = new OauthAccessToken(   tokenId:token.getValue(),
                                         token: SerializationUtils.serialize(token),
                                         authentication : SerializationUtils.serialize(authentication),
                                         refreshToken : refreshToken
@@ -69,34 +69,35 @@ import oauth2.*
         try {
 
             OauthAccessToken.withTransaction { status ->
-            def o = OauthAccessToken.findByTokenId(tokenValue)
-            accessToken  = SerializationUtils.deserialize(o.token)
-        } 
-
-        log.debug 'accessToken.expiration '+ accessToken.expiration
-
-        log.debug 'accessToken '+ accessToken
-
-        }
-        catch (EmptyResultDataAccessException e) {
-            if (LOG.isInfoEnabled()) {
-                LOG.info("Failed to find access token for token " + tokenValue);
+              def o = OauthAccessToken.findByTokenId(tokenValue)
+              accessToken  = SerializationUtils.deserialize(o.token)
             }
-        }
+
+            log.debug 'accessToken.expiration '+ accessToken.expiration
+
+            log.debug 'accessToken '+ accessToken
+
+          } catch (EmptyResultDataAccessException e) {
+              if (LOG.isInfoEnabled()) {
+                  LOG.info("Failed to find access token for token " + tokenValue);
+              }
+          } catch (Exception ee) {
+            log.debug "Token não existe mais -> " + tokenValue
+          }
 
         return accessToken;
     }
 
     public void removeAccessToken(String tokenValue) {
-        log.debug 'removeAccessToken'  
+        log.debug 'removeAccessToken'
         OauthAccessToken.withTransaction { status ->
             def o = OauthAccessToken.findByTokenId(tokenValue)
-            o.delete(flush:true)     
-        } 
+            o.delete(flush:true)
+        }
     }
 
     public OAuth2Authentication readAuthentication(OAuth2AccessToken token) {
-        log.debug 'readAuthentication'    
+        log.debug 'readAuthentication'
         OAuth2Authentication authentication = null;
 
         try {
@@ -104,7 +105,7 @@ import oauth2.*
             OauthAccessToken.withTransaction { status ->
                 def o = OauthAccessToken.findByTokenId(token.getValue())
                 authentication  = SerializationUtils.deserialize(o.authentication)
-            } 
+            }
 
         }
         catch (EmptyResultDataAccessException e) {
@@ -117,9 +118,9 @@ import oauth2.*
     }
 
     public void storeRefreshToken(ExpiringOAuth2RefreshToken refreshToken, OAuth2Authentication authentication) {
-        log.debug 'storeRefreshToken'    
+        log.debug 'storeRefreshToken'
 
-        def o = new OauthRefreshToken(  tokenId:refreshToken.getValue(), 
+        def o = new OauthRefreshToken(  tokenId:refreshToken.getValue(),
                                         token: SerializationUtils.serialize(refreshToken),
                                         authentication : SerializationUtils.serialize(authentication)
         )
@@ -136,7 +137,7 @@ import oauth2.*
             OauthRefreshToken.withTransaction { status ->
                 def o = OauthRefreshToken.findByTokenId(tokenValue)
                 refreshToken  = SerializationUtils.deserialize(o.token)
-            } 
+            }
 
         }
         catch (EmptyResultDataAccessException e) {
@@ -149,16 +150,16 @@ import oauth2.*
     }
 
     public void removeRefreshToken(String token) {
-        log.debug 'removeRefreshToken'    
+        log.debug 'removeRefreshToken'
 
         OauthRefreshToken.withTransaction { status ->
             def o = OauthRefreshToken.findByTokenId(token)
-            o.delete(flush:true)     
-        } 
+            o.delete(flush:true)
+        }
     }
 
     public OAuth2Authentication readAuthentication(ExpiringOAuth2RefreshToken token) {
-        log.debug 'readAuthentication'    
+        log.debug 'readAuthentication'
         OAuth2Authentication authentication = null;
 
         try {
@@ -167,7 +168,7 @@ import oauth2.*
             OauthRefreshToken.withTransaction { status ->
                 def o = OauthRefreshToken.findByTokenId(token.getValue())
                 authentication  = SerializationUtils.deserialize(o.authentication)
-            } 
+            }
 
         }
         catch (EmptyResultDataAccessException e) {
@@ -180,12 +181,12 @@ import oauth2.*
     }
 
     public void removeAccessTokenUsingRefreshToken(String refreshToken) {
-        log.debug 'removeAccessTokenUsingRefreshToken'    
+        log.debug 'removeAccessTokenUsingRefreshToken'
 
         OauthAccessToken.withTransaction { status ->
             def o = OauthAccessToken.findByRefreshToken(refreshToken)
-            o.delete(flush:true)     
-        } 
+            o.delete(flush:true)
+        }
 
     }
 

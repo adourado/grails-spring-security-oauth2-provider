@@ -22,13 +22,16 @@ grails.project.dependency.resolution = {
 	inherits 'global'
 	log 'warn'
 	repositories {
+		inherits true
 		grailsPlugins()
 		grailsHome()
 		grailsCentral()
 
 		mavenLocal()
-		mavenRepo "http://maven.springframework.org/milestone"	// For spring-security-oauth provider
 		mavenCentral()
+
+		mavenRepo "http://maven.springframework.org/milestone/"	// For spring-security-oauth provider
+		mavenRepo "http://repo.grails.org/grails/core"
 	}
 
 	dependencies {
@@ -43,7 +46,7 @@ grails.project.dependency.resolution = {
 			export = false
 		}
 	}
-	
+
 	plugins {
 		// Testing
 		test ':code-coverage:1.2.4', {
