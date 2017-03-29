@@ -40,6 +40,9 @@ import oauth2.*
         }
 
         log.debug 'clientId ' + authentication.clientAuthentication.clientId
+        log.debug 'clientAuthentication ' + authentication.clientAuthentication
+        log.debug 'getPrincipal ' + authentication.getPrincipal()
+        log.debug 'authentication  ' + authentication
 
         OauthClientDetails.withTransaction { status ->
             def client = OauthClientDetails.findByClientId(authentication.clientAuthentication.clientId)
@@ -53,16 +56,18 @@ import oauth2.*
         def o = new OauthAccessToken(   tokenId:token.getValue(),
                                         token: SerializationUtils.serialize(token),
                                         authentication : SerializationUtils.serialize(authentication),
-                                        refreshToken : refreshToken
+                                        refreshToken : refreshToken,
+                                        userName: authentication.getPrincipal().username,
+                                        dataExpiracao : token.expiration,
+                                        clientId : authentication.clientAuthentication.clientId
         )
         o.save(flush:true)
 
     }
 
     public OAuth2AccessToken readAccessToken(String tokenValue) {
-        log.debug 'readAccessToken'
 
-        log.debug 'readAccessToken'
+        log.debug 'readAccessToken ' + tokenValue
 
         OAuth2AccessToken accessToken = null;
 
@@ -70,19 +75,20 @@ import oauth2.*
 
             OauthAccessToken.withTransaction { status ->
               def o = OauthAccessToken.findByTokenId(tokenValue)
-              accessToken  = SerializationUtils.deserialize(o.token)
+              accessToken  = SerializationUtils.deserialize(o?.token)
             }
 
-            log.debug 'accessToken.expiration '+ accessToken.expiration
-
-            log.debug 'accessToken '+ accessToken
+            if (accessToken){
+              log.debug 'accessToken.expiration '+ accessToken.expiration
+              log.debug 'accessToken '+ accessToken
+            }
 
           } catch (EmptyResultDataAccessException e) {
               if (LOG.isInfoEnabled()) {
                   LOG.info("Failed to find access token for token " + tokenValue);
               }
           } catch (Exception ee) {
-            log.debug "Token não existe mais -> " + tokenValue
+            log.debug "Token não existe mais --> " + tokenValue
           }
 
         return accessToken;

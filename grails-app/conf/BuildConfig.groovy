@@ -32,6 +32,12 @@ grails.project.dependency.resolution = {
 
 		mavenRepo "http://maven.springframework.org/milestone/"	// For spring-security-oauth provider
 		mavenRepo "http://repo.grails.org/grails/core"
+		mavenRepo "http://maven.springframework.org/milestone/"
+		mavenRepo "http://repo.grails.org/grails/repo/"
+
+		mavenRepo "https://repo.grails.org/grails"
+		mavenRepo 'http://repo.spring.io/milestone'
+
 	}
 
 	dependencies {
@@ -49,12 +55,12 @@ grails.project.dependency.resolution = {
 
 	plugins {
 		// Testing
-		test ':code-coverage:1.2.4', {
+		/*test ':code-coverage:1.2.4', {
 			export = false
 		}
 		test ':codenarc:0.15', {
 			export = false
-		}
+		}*/
 		provided ':release:1.0.1', {
 			export = false
 		}

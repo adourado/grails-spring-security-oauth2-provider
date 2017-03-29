@@ -31,10 +31,10 @@ import grails.plugins.springsecurity.oauthprovider.GormClientDetailsService
 
 class SpringSecurityOauth2ProviderGrailsPlugin {
 	static Logger log = Logger.getLogger('grails.app.bootstrap.BootStrap')
-	
-	def version = "1.0.0.M5.1-SNAPSHOT"
+
+	def version = "1.0.0.M5.AND-SNAPSHOT"
 	String grailsVersion = '1.2.2 > *'
-	
+
 	List pluginExcludes = [
 		'docs/**',
 		'src/docs/**',
@@ -77,14 +77,14 @@ OAuth2 Provider support for the Spring Security plugin.
 		SpringSecurityUtils.loadSecondaryConfig 'DefaultOAuth2ProviderSecurityConfig'
 		// have to get again after overlaying DefaultOAuthProviderSecurityConfig
 		conf = SpringSecurityUtils.securityConfig
-		
+
 		if (!conf.oauthProvider.active)
 			return
 
 		log.debug 'applicationContext.dataSource ' + dataSource
 
 		log.debug 'Configuring Spring Security OAuth2 provider ...'
-		
+
 		clientDetailsService(GormClientDetailsService)//InMemoryClientDetailsService
 		tokenStore(GormTokenStore){//InMemoryTokenStore
 			dataSource = ref("dataSource")
@@ -100,22 +100,22 @@ OAuth2 Provider support for the Spring Security plugin.
 		}
 		authorizationCodeServices(InMemoryAuthorizationCodeServices)//JdbcAuthorizationCodeServices
 //		authorizationCodeServices(JdbcAuthorizationCodeServices)//InMemoryAuthorizationCodeServices
-		
+
 		// Oauth namespace
 		xmlns oauth:"http://www.springframework.org/schema/security/oauth2"
-		
+
 		oauth.'authorization-server'(
 				'client-details-service-ref':"clientDetailsService",
 				'token-services-ref':"tokenServices",
 				'authorization-endpoint-url':conf.oauthProvider.authorizationEndpointUrl,
 				'token-endpoint-url':conf.oauthProvider.tokenEndpointUrl) {
-			
+
 			oauth.'authorization-code'(
 				'services-ref':"authorizationCodeServices",
 				'disabled':!conf.oauthProvider.grantTypes.authorizationCode,
 				'user-approval-page':conf.oauthProvider.userApprovalEndpointUrl,
 				'approval-parameter-name':conf.oauthProvider.authorizationCode.approvalParameterName)
-			
+
 			oauth.'implicit'(
 				'disabled':!conf.oauthProvider.grantTypes.implicit
 			)
@@ -130,11 +130,11 @@ OAuth2 Provider support for the Spring Security plugin.
 				'disabled':!conf.oauthProvider.grantTypes.password
 			)
 		}
-			
+
 		// Register endpoint URL filter since we define the URLs above
 		SpringSecurityUtils.registerFilter 'oauth2EndpointUrlFilter',
 				conf.oauthProvider.filterStartPosition + 1
-				
+
 		oauth2ExceptionHandlerFilter(OAuth2ExceptionHandlerFilter)
 		SpringSecurityUtils.registerFilter 'oauth2ExceptionHandlerFilter',
 				conf.oauthProvider.filterStartPosition + 2
@@ -143,7 +143,7 @@ OAuth2 Provider support for the Spring Security plugin.
 		}
 		SpringSecurityUtils.registerFilter 'oauth2ProtectedResourceFilter',
 				conf.oauthProvider.filterStartPosition + 3
-		
+
 		log.debug "... done configured Spring Security OAuth2 provider"
 	}
 
@@ -157,21 +157,21 @@ OAuth2 Provider support for the Spring Security plugin.
 		SpringSecurityUtils.loadSecondaryConfig 'DefaultOAuth2ProviderSecurityConfig'
 		// have to get again after overlaying DefaultOAuthProviderSecurityConfig
 		conf = SpringSecurityUtils.securityConfig
-		
+
 		if (!conf.oauthProvider.active || !conf.oauthProvider.clients)
 			return
 
 		log.debug 'Configuring OAuth2 clients ...'
-		
+
 		def clientDetailsService = applicationContext.getBean("clientDetailsService")
 		if (clientDetailsService instanceof InMemoryClientDetailsService)
 			SpringSecurityOAuth2ProviderUtility.registerClients(conf, clientDetailsService)
 		else
 			log.info("Client details service bean is not an in-memory implementation, ignoring client config")
-		
+
 		log.debug '... done configuring OAuth2 clients'
     }
-	
+
     def onConfigChange = { event ->
 		def conf = SpringSecurityUtils.securityConfig
 		if (!conf || !conf.active) {
@@ -181,18 +181,18 @@ OAuth2 Provider support for the Spring Security plugin.
 		SpringSecurityUtils.loadSecondaryConfig 'DefaultOAuth2ProviderSecurityConfig'
 		// have to get again after overlaying DefaultOAuthProviderSecurityConfig
 		conf = SpringSecurityUtils.securityConfig
-		
+
 		if (!conf.oauthProvider.active || !conf.oauthProvider.clients)
 			return
 
 		log.debug 'Reconfiguring OAuth2 clients ...'
-		
+
 		def clientDetailsService = applicationContext.getBean("clientDetailsService")
 		if (clientDetailsService instanceof InMemoryClientDetailsService)
 			SpringSecurityOAuth2ProviderUtility.registerClients(conf, clientDetailsService)
 		else
 			log.info("Client details service bean is not an in-memory implementation, ignoring config change")
-		
+
 		log.debug '... done reconfiguring OAuth2 clients'
 	}
 }
