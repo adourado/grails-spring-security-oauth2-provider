@@ -61,12 +61,12 @@ grails.project.dependency.resolution = {
 		test ':codenarc:0.15', {
 			export = false
 		}*/
-		provided ':release:1.0.1', {
+		/*provided ':release:1.0.1', {
 			export = false
 		}
 		provided ':svn:1.0.2', {
 			export = false
-		}
+		}*/
 		compile ':spring-security-core:1.2.7.2'
 	}
 }

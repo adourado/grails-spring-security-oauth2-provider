@@ -83,7 +83,7 @@ OAuth2 Provider support for the Spring Security plugin.
 
 		log.debug 'applicationContext.dataSource ' + dataSource
 
-		log.debug 'Configuring Spring Security OAuth2 provider ...'
+		log.debug 'Configuring Spring Security OAuth2 provider (AND)...'
 
 		clientDetailsService(GormClientDetailsService)//InMemoryClientDetailsService
 		tokenStore(GormTokenStore){//InMemoryTokenStore
